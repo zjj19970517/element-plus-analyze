@@ -20,29 +20,32 @@ const TSCONFIG_PATH = path.resolve(projRoot, 'tsconfig.web.json')
 const outDir = path.resolve(buildOutput, 'types')
 
 /**
+ * 生成类型声明文件
  * fork = require( https://github.com/egoist/vue-dts-gen/blob/main/src/index.ts
  */
 export const generateTypesDefinitions = async () => {
   const compilerOptions: CompilerOptions = {
-    emitDeclarationOnly: true,
-    outDir,
+    emitDeclarationOnly: true, // 仅仅输出 Declaration 文件
+    outDir, // 输出目录
     baseUrl: projRoot,
     preserveSymlinks: true,
     skipLibCheck: true,
     noImplicitAny: false,
   }
+
   const project = new Project({
-    compilerOptions,
-    tsConfigFilePath: TSCONFIG_PATH,
+    compilerOptions, // 编译选项
+    tsConfigFilePath: TSCONFIG_PATH, // 配置文件的路径
     skipAddingFilesFromTsConfig: true,
   })
 
+  // 添加需要转换的源文件
   const sourceFiles = await addSourceFiles(project)
-  consola.success('Added source files')
 
+  // 类型检查
   typeCheck(project)
-  consola.success('Type check passed!')
 
+  // emit 出 dts 文件
   await project.emit({
     emitOnlyDtsFiles: true,
   })
@@ -87,9 +90,12 @@ export const generateTypesDefinitions = async () => {
 }
 
 async function addSourceFiles(project: Project) {
+  // 添加 env.d.ts
   project.addSourceFileAtPath(path.resolve(projRoot, 'typings/env.d.ts'))
 
   const globSourceFile = '**/*.{js?(x),ts?(x),vue}'
+  // glob 匹配到 packages 目录下的 js、ts、vue 文件
+  // 排除掉 element-plus 空间下的
   const filePaths = excludeFiles(
     await glob([globSourceFile, '!element-plus/**/*'], {
       cwd: pkgRoot,
@@ -97,6 +103,8 @@ async function addSourceFiles(project: Project) {
       onlyFiles: true,
     })
   )
+
+  // 单独添加 element-plus 空间下的 js、ts、vue 文件
   const epPaths = excludeFiles(
     await glob(globSourceFile, {
       cwd: epRoot,
@@ -108,10 +116,15 @@ async function addSourceFiles(project: Project) {
   await Promise.all([
     ...filePaths.map(async (file) => {
       if (file.endsWith('.vue')) {
+        // 处理 vue 文件
+        // 首先读取文件内容
         const content = await readFile(file, 'utf-8')
+        // 是否有 no-check 标记
         const hasTsNoCheck = content.includes('@ts-nocheck')
 
+        // 使用 vue/compiler-sfc 编译单文件
         const sfc = vueCompiler.parse(content)
+        // 解析出 script、scriptSetup
         const { script, scriptSetup } = sfc.descriptor
         if (script || scriptSetup) {
           let content =
@@ -125,6 +138,8 @@ async function addSourceFiles(project: Project) {
           }
 
           const lang = scriptSetup?.lang || script?.lang || 'js'
+          // 编译后的 content
+          // createSourceFile 创建一个 Source 文件
           const sourceFile = project.createSourceFile(
             `${path.relative(process.cwd(), file)}.${lang}`,
             content
@@ -132,6 +147,7 @@ async function addSourceFiles(project: Project) {
           sourceFiles.push(sourceFile)
         }
       } else {
+        // 其他类型文件，使用 addSourceFileAtPath 添加即可
         const sourceFile = project.addSourceFileAtPath(file)
         sourceFiles.push(sourceFile)
       }

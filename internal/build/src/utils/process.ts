@@ -3,6 +3,12 @@ import chalk from 'chalk'
 import consola from 'consola'
 import { projRoot } from '@element-plus/build-utils'
 
+/**
+ * 执行某个 cmd 命令
+ * @param command 命令名称
+ * @param cwd 工作目录
+ * @returns
+ */
 export const run = async (command: string, cwd: string = projRoot) =>
   new Promise<void>((resolve, reject) => {
     const [cmd, ...args] = command.split(' ')

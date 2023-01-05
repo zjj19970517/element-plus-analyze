@@ -41,6 +41,8 @@ export default defineConfig(async ({ mode }) => {
   ).map((dep) => dep.replace(/\.js$/, ''))
 
   return {
+    // 上面import ElementPlus from 'element-plus'
+    // 因为在 vite.config.ts 里定义了路径别名，将定位到打包入口 packages/element-plus/index.ts：
     resolve: {
       alias: [
         {
@@ -67,15 +69,17 @@ export default defineConfig(async ({ mode }) => {
         },
       }),
       esbuildPlugin(),
+      // 自动注册组件
       Components({
         include: `${__dirname}/**`,
         resolvers: ElementPlusResolver({ importStyle: 'sass' }),
         dts: false,
       }),
-      mkcert(),
-      Inspect(),
+      mkcert(), // https
+      Inspect(), // 调试 Vite 插件
     ],
 
+    // 哪些依赖需要预编译
     optimizeDeps: {
       include: ['vue', '@vue/shared', ...dependencies, ...optimizeDeps],
     },

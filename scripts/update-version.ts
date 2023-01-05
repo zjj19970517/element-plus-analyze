@@ -4,19 +4,19 @@ import { errorAndExit, getWorkspacePackages } from '@element-plus/build-utils'
 import type { Project } from '@pnpm/find-workspace-packages'
 
 async function main() {
-  const tagVersion = process.env.TAG_VERSION
-  const gitHead = process.env.GIT_HEAD
-  if (!tagVersion || !gitHead) {
-    errorAndExit(
-      new Error(
-        'No tag version or git head were found, make sure that you set the environment variable $TAG_VERSION \n'
-      )
-    )
-  }
+  const tagVersion = '1.0.0'
+  // const gitHead = process.env.GIT_HEAD
+  // if (!tagVersion || !gitHead) {
+  //   errorAndExit(
+  //     new Error(
+  //       'No tag version or git head were found, make sure that you set the environment variable $TAG_VERSION \n'
+  //     )
+  //   )
+  // }
 
   consola.log(chalk.cyan('Start updating version'))
   consola.log(chalk.cyan(`$TAG_VERSION: ${tagVersion}`))
-  consola.log(chalk.cyan(`$GIT_HEAD: ${gitHead}`))
+  // consola.log(chalk.cyan(`$GIT_HEAD: ${gitHead}`))
 
   consola.debug(chalk.yellow(`Updating package.json for element-plus`))
 

@@ -73,7 +73,7 @@ export function copyThemeChalkBundle() {
 /**
  * copy source file to packages
  */
-
+// copyThemeChalkSource 做的是将 src/** 下所有scss文件拷贝输出到 dist/element-plus/theme-chalk 路径下。
 export function copyThemeChalkSource() {
   return src(path.resolve(__dirname, 'src/**')).pipe(
     dest(path.resolve(distBundle, 'src'))
@@ -81,7 +81,7 @@ export function copyThemeChalkSource() {
 }
 
 export const build = parallel(
-  copyThemeChalkSource,
+  copyThemeChalkSource, // 拷贝样式源码
   series(buildThemeChalk, buildDarkCssVars, copyThemeChalkBundle)
 )
 

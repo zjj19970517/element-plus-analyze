@@ -2,6 +2,8 @@ import consola from 'consola'
 import { REPO_BRANCH, REPO_PATH } from '@element-plus/build-constants'
 import { docsDirName } from '@element-plus/build-utils'
 import { languages } from './utils/lang'
+
+// 一些基础配置都放在了 config 目录下
 import { features, head, mdPlugin, nav, sidebars } from './config'
 import type { UserConfig } from 'vitepress'
 
@@ -31,8 +33,7 @@ const buildTransformers = () => {
   return transformers
 }
 
-consola.debug(`DOC_ENV: ${process.env.DOC_ENV}`)
-
+// 语言包
 const locales = {}
 languages.forEach((lang) => {
   locales[`/${lang}`] = {
@@ -41,10 +42,13 @@ languages.forEach((lang) => {
   }
 })
 
+/**
+ * VitePress 的自定义配置
+ */
 export const config: UserConfig = {
   title: 'Element Plus',
   description: 'a Vue 3 based component library for designers and developers',
-  lastUpdated: true,
+  lastUpdated: true, // 显示最新更新
   head,
   themeConfig: {
     repo: REPO_PATH,

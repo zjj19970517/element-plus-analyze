@@ -4,6 +4,8 @@ import { Loading } from '@element-plus/icons-vue'
 import type { ExtractPropTypes } from 'vue'
 import type button from './button.vue'
 
+// as const 是 TS 的语法，它告诉 TS 它所断言的值以及该值的所有层级的子属性都是不可篡改的，
+// 故对每一级子属性都会做最严格的类型推断。
 export const buttonTypes = [
   'default',
   'primary',
@@ -55,6 +57,7 @@ export const buttonProps = buildProps({
     default: undefined,
   },
 } as const)
+
 export const buttonEmits = {
   click: (evt: MouseEvent) => evt instanceof MouseEvent,
 }

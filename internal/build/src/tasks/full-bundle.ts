@@ -28,6 +28,8 @@ import type { Plugin } from 'rollup'
 
 const banner = `/*! ${PKG_BRAND_NAME} v${version} */\n`
 
+// 构建全量的完整输出
+// 输出到一个文件中
 async function buildFullEntry(minify: boolean) {
   const plugins: Plugin[] = [
     ElementPlusAlias(),
@@ -69,11 +71,13 @@ async function buildFullEntry(minify: boolean) {
   }
 
   const bundle = await rollup({
+    // 单入口为：packages/element-plus/index.ts
     input: path.resolve(epRoot, 'index.ts'),
     plugins,
     external: await generateExternal({ full: true }),
-    treeshake: true,
+    treeshake: true, // 开启 TreeSharking
   })
+  // 输出 umd 格式 和 esm 格式
   await writeBundles(bundle, [
     {
       format: 'umd',
@@ -103,6 +107,7 @@ async function buildFullEntry(minify: boolean) {
   ])
 }
 
+// 构建 locale 语言包
 async function buildFullLocale(minify: boolean) {
   const files = await glob(`**/*.ts`, {
     cwd: path.resolve(localeRoot, 'lang'),
@@ -154,7 +159,10 @@ async function buildFullLocale(minify: boolean) {
 export const buildFull = (minify: boolean) => async () =>
   Promise.all([buildFullEntry(minify), buildFullLocale(minify)])
 
+// 构建全量的 Bundle
 export const buildFullBundle = parallel(
+  // 打包压缩的产物
   withTaskName('buildFullMinified', buildFull(true)),
+  // 打包非压缩产物
   withTaskName('buildFull', buildFull(false))
 )
